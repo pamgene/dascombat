@@ -1,0 +1,86 @@
+---
+title: "Example 1"
+author: "Rik de Wijn"
+date: "9/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## VSN normalization of a DAS run
+- Normalization is performed per run, using the REF samples as normalization reference.
+-  ETS data as input
+```{r VSN, message = FALSE}
+library(vsn)
+library(bnshiny)
+library(bnutil)
+library(dplyr)
+library(reshape2)
+library(data.table)
+
+vsnr = function(df, normalization = TRUE){
+  X = acast(df, ID ~ colSeq)
+  R = acast(df %>% filter(RefFactor == levels(RefFactor)[1]), ID ~ colSeq)
+
+  if(dim(X)[1] != dim(R)[1]){
+    stop("Number of rows in data and reference do not match")
+  }
+
+  if(all(rownames(X) == rownames(R))){
+    aRef = vsn2(R, calib = ifelse(normalization, "affine", "none"))
+    aVsn = vsn2(X, reference = aRef, calib = ifelse(normalization, "affine", "none"))
+    result = data.table(vsn = list(aVsn))
+  } else {
+    stop("IDs of data and reference do not match")
+  }
+  return(result)
+}
+
+vsnh = function(dt){
+  H = attr(dt$vsn[[1]], "hx")
+  rownames(H) = 1:dim(H)[1]
+  aResult = melt(H)
+  colnames(aResult) = c("rowSeq", "colSeq", "Hvsn")
+  return(aResult)
+}
+
+load("../examples/NewX Run2 ETSdata.RData")
+bndata = data$data
+normalized.bndata = bndata %>%
+  mutate(RefFactor = factor(Sample.name)) %>%
+  mutate(RefFactor = relevel(RefFactor, ref = "REF")) %>%
+  do(vsnr(.)) %>%
+  do(vsnh(.))
+bndata = left_join(bndata, normalized.bndata, by = c("rowSeq", "colSeq")) # normalized data will be in Hvsn
+```
+- Next the ComBat correction is performed. Note that this is non-running code: dascombat TBD
+- Also see: combat_reworked.r
+- Also see: https://bitbucket.org/bnoperator/pgbatch/src/master/
+```{r, eval = FALSE}
+
+tr.mean.data = normalized.bndata %>% group_by(Grouping, Sample.name) %>% summarize(TR.mean = mean(Hvsn))
+Href.new = acast(tr.mean.data %>% filter(Grouping == "REF"), colSeq ~ ID, value.var = "TR.mean")
+
+refdb = read.delim("METHODCC REF database_200916085501.txt",skip = 1)
+Href.db = t(as.matrix(refdb[,2:dim(refdb)[2]])
+colnames(Href.db = refdb[,1
+
+if(!all(colnames(Href.new) == colnames(Href.db))) stop("Peptide IDs do not match")
+
+HR = rbind(Href.db, Href.new)
+bx = factor(c(rep("DB"dim(Href.db)[1]),rep("NEW", dim(Href.new)[1]) ))
+
+aModel = dascombat::fit(HR, bx, refbatch = "DB", mean.only = TRUE)
+
+H = acast(tr.mean.data, colSeq ~ ID, value.var = "TR.mean")
+bx = factor(c(rep("NEW", dim(H)[1])))
+result = dascombat::apply(aModel, bx)
+
+```
+
+
+
+
+

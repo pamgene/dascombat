@@ -1,0 +1,78 @@
+---
+title: "ComBat Test Data"
+author: "Rik de Wijn"
+date: "9/17/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(sva)
+library(reshape2)
+library(bnutil)
+library(pgBatch)
+load("dascombat test input.RData")
+
+test_in = data$data
+```
+
+## Opt1: No reference, mean.only = FALSE
+
+```{r opt1}
+Y = acast(test_in, rowSeq ~ colSeq, value.var = "value")
+bx = factor(acast(test_in, rowSeq ~ colSeq, value.var = "RunID")[1,])
+Ystar = sva::ComBat(Y, bx)
+test_opt1_out = melt(Ystar)
+colnames(test_opt1_out) = c("rowSeq", "colSeq", "value")
+```
+
+## Opt2: No reference, mean.only = TRUE 
+
+```{r opt2}
+Y = acast(test_in, rowSeq ~ colSeq, value.var = "value")
+bx = factor(acast(test_in, rowSeq ~ colSeq, value.var = "RunID")[1,])
+Ystar = sva::ComBat(Y, bx, mean.only = TRUE)
+test_opt2_out = melt(Ystar)
+colnames(test_opt2_out) = c("rowSeq", "colSeq", "value")
+```
+
+## Opt3: ref.batch, mean.only = FALSE 
+
+```{r opt3}
+Y = acast(test_in, rowSeq ~ colSeq, value.var = "value")
+bx = factor(acast(test_in, rowSeq ~ colSeq, value.var = "RunID")[1,])
+Ystar = sva::ComBat(Y, bx, ref.batch = levels(bx)[1])
+test_opt3_out = melt(Ystar)
+colnames(test_opt3_out) = c("rowSeq", "colSeq", "value")
+```
+
+## Opt4: ref.batch, mean.only = TRUE
+
+```{r opt4}
+Y = acast(test_in, rowSeq ~ colSeq, value.var = "value")
+bx = factor(acast(test_in, rowSeq ~ colSeq, value.var = "RunID")[1,])
+Ystar = sva::ComBat(Y, bx, ref.batch = levels(bx)[1], mean.only = TRUE)
+test_opt4_out = melt(Ystar)
+colnames(test_opt4_out) = c("rowSeq", "colSeq", "value")
+```
+
+## Opt 5: fit to REF, apply to DAS
+```{r opt5}
+Yref = acast(test_in %>% filter(Grouping == "REF"), rowSeq ~ colSeq, value.var = "value")
+bxref = factor(as.vector(acast(test_in %>% filter(Grouping == "REF"), rowSeq ~ colSeq, value.var = "RunID")[1,]))
+cObj = pgBatch::pgCombat$new()
+cFit = cObj$fit(Yref, bxref)
+
+Ydas = acast(test_in %>% filter(Grouping == "DAS"), rowSeq ~ colSeq, value.var = "value")
+bxdas = factor(as.vector(acast(test_in %>% filter(Grouping == "DAS"), rowSeq ~ colSeq, value.var = "RunID")[1,]))
+Ystar = cFit$apply(Ydas, bxdas)
+
+test_opt5_out = melt(Ystar)
+colnames(test_opt5_out) = c("rowSeq", "colSeq", "value")
+
+```
+
+```{r, eval = FALSE}
+save(file = "Combat Test Data.RData", test_opt1_out, test_opt2_out, test_opt3_out, test_opt4_out, test_opt5_out)
+```
