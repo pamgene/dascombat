@@ -2,7 +2,7 @@
 title: "Appendix A, description of the ComBat procedure"
 author: "Rik de Wijn"
 date: "9/3/2020"
-output: html_document
+output: word_document
 ---
 
 ```{r setup, include=FALSE}
