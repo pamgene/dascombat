@@ -33,6 +33,7 @@ it.sol = function(params, Z, lambda.hat, sigma.hat, conv = .0001)
   count <- 0
   while(change>conv){
     g.new <- postmean(lambda.hat, params$lambda.bar, params$n, d.old, params$t2)
+     
     sum2 = colSums(scale(Z, center = g.new, scale = FALSE)^2)
     #sum2 <- rowSums((sdat - g.new %*% t(rep(1,ncol(sdat))))^2, na.rm=TRUE)
     d.new <- postvar(sum2, params$n, params$gamma, params$theta)
@@ -92,8 +93,8 @@ getLSCorrection = function(pardf, Z, bx, lambda.hat, sigma.hat, mean.only = FALS
   bx2 = pardf$bx
   
   if(!mean.only){
-    # post = pardf %>% group_by(bx) %>% do(it.sol(., Z = Z[bx == .$bx,], lambda.hat[.$bi,], sigma.hat[.$bi,]))
-    post = pardf %>% group_by(bx) %>% do(it.sol(., Z = Z[group_rows(.),], lambda.hat[.$bi,], sigma.hat[.$bi,]))
+    post = pardf %>% group_by(bx) %>% do(it.sol(., Z = Z[bx == .$bx,], lambda.hat[.$bi,], sigma.hat[.$bi,]))
+    # post = pardf %>% group_by(bx) %>% do(it.sol(., Z = Z[group_rows(.),], lambda.hat[.$bi,], sigma.hat[.$bi,]))
   } else {
     post = pardf %>% group_by(bx) %>% do({
       lambda.str= postmean(lambda.hat[.$bi,], .$lambda.bar, 1,1, .$t2)
