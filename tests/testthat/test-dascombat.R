@@ -63,14 +63,20 @@ test_that("apply with new batch variable", {
   bx = factor(bx)
    
   model = dascombat::fit(Y, bx, mean.only = TRUE)
-   
-  bx = sample(factor(bx))
   
-  # resize the data
-  # Y = Y[1:nrow(Y), 1:24]
-  # bx = bx[1:24]
+  bx=sample(bx)
    
-  cMod = dascombat::applyModel(Y,model,bx=bx)
+  dascombat::applyModel(Y,model,bx=bx)
+    
+  bx = as.character(bx)
+  bx[1] = "something missing"
+  bx = factor(bx)
+  
+  expect_error(dascombat::applyModel(Y,model,bx=bx),
+               message="apply.bad.batch.variable")
+  
+  
+   
 })
 
 
