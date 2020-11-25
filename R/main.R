@@ -45,8 +45,8 @@ it.sol = function(params, Z, lambda.hat, sigma.hat, conv = .0001)
 
  
 batchcorrect = function(Z, bx,  post, lambda_g, sigmasq_g){
-  Ystar = matrix(nrow = dim(Z)[1], ncol = dim(Z)[2])
-  for (i in 1:dim(Z)[1]){
+  Ystar = matrix(nrow = nrow(Z) , ncol = ncol(Z) )
+  for (i in 1:nrow(Z)){
     bIdx = (1:nlevels(bx))[bx[i] == levels(bx)]
     zstar= (Z[i,] - post$lambda.star[[bIdx]])/sqrt(post$sigma.star[[bIdx]])
     Ystar[i,] = sqrt(sigmasq_g) * zstar + lambda_g
@@ -59,7 +59,7 @@ batchcorrect = function(Z, bx,  post, lambda_g, sigmasq_g){
 #' @import dplyr data.table
 #' 
 #' @export
-applyModel = function(tY, model) {
+applyModel = function(tY, model, bx=NULL) {
   
   Y = t(tY)
   
@@ -67,11 +67,14 @@ applyModel = function(tY, model) {
             center = model$alpha_g, 
             scale = sqrt(model$siggsq))
   
+  if (is.null(bx)) bx = model$bx
+  
   Ystar = batchcorrect(Z,  
-                       model$bx,
+                       bx,
                        model$post,
                        model$alpha_g,
                        model$siggsq)
+  
   t(Ystar)
 }
 

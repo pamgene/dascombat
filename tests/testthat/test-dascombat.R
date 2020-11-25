@@ -37,8 +37,6 @@ test_that("dascombat::fit vs sva::ComBat", {
   model = dascombat::fit(Y, bx, mean.only = FALSE, ref.batch = ref.batch)
   cMod = dascombat::applyModel(Y,model)
   expect_true(all(round(cMod,8) - round(sva.cMod,8) == 0))
-   
-  
 })
 
 test_that("fit.ref.batch.not.found", {
@@ -47,14 +45,32 @@ test_that("fit.ref.batch.not.found", {
   Y = acast(df, rowSeq~colSeq, value.var = "value")
   bx = acast(df, rowSeq~colSeq, value.var = "RunID")[1,]
   bx = factor(bx)
-   
+  
   ref.batch.error = "something missing"
-   
+  
   expect_false(ref.batch.error %in% bx)
- 
+  
   expect_error(dascombat::fit(Y, bx, mean.only = TRUE, ref.batch = ref.batch.error),
                message="fit.ref.batch.not.found")
   
+})
+
+test_that("apply with new batch variable", {
+  df = dascombat::combat_testdf
+  
+  Y = acast(df, rowSeq~colSeq, value.var = "value")
+  bx = acast(df, rowSeq~colSeq, value.var = "RunID")[1,]
+  bx = factor(bx)
+   
+  model = dascombat::fit(Y, bx, mean.only = TRUE)
+   
+  bx = sample(factor(bx))
+  
+  # resize the data
+  # Y = Y[1:nrow(Y), 1:24]
+  # bx = bx[1:24]
+   
+  cMod = dascombat::applyModel(Y,model,bx=bx)
 })
 
 

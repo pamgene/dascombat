@@ -9,6 +9,9 @@ Y = acast(df, rowSeq~colSeq, value.var = "value")
 bx = acast(df, rowSeq~colSeq, value.var = "RunID")[1,]
 bx = factor(bx)
 
+Y = Y[1:nrow(Y), 1:24]
+bx = bx[ 1:24]
+
 sva.cMod = sva::ComBat(Y, bx, mean.only  = TRUE, ref.batch = NULL)
 model = dascombat::fit(Y, bx, mean.only = TRUE)
 cMod = dascombat::applyModel(Y,model)
