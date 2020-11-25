@@ -8,9 +8,16 @@ df = dascombat::combat_testdf
 Y = acast(df, rowSeq~colSeq, value.var = "value")
 bx = acast(df, rowSeq~colSeq, value.var = "RunID")[1,]
 bx = factor(bx)
+bx
 
-Y = Y[1:nrow(Y), 1:24]
-bx = bx[ 1:24]
+a = factor(c('a','a','b','c','c'))
+b = factor(c('a','a','cs'))
+ 
+ 
+
+
+bIdx = (1:nlevels(bx))[bx[i] == levels(bx)]
+
 
 sva.cMod = sva::ComBat(Y, bx, mean.only  = TRUE, ref.batch = NULL)
 model = dascombat::fit(Y, bx, mean.only = TRUE)

@@ -44,10 +44,10 @@ it.sol = function(params, Z, lambda.hat, sigma.hat, conv = .0001)
 }
 
  
-batchcorrect = function(Z, bx,  post, lambda_g, sigmasq_g){
+batchcorrect = function(Z, bx, model.levels,  post, lambda_g, sigmasq_g){
   Ystar = matrix(nrow = nrow(Z) , ncol = ncol(Z) )
   for (i in 1:nrow(Z)){
-    bIdx = (1:nlevels(bx))[bx[i] == levels(bx)]
+    bIdx = (1:length(model.levels))[bx[i] == model.levels]
     zstar= (Z[i,] - post$lambda.star[[bIdx]])/sqrt(post$sigma.star[[bIdx]])
     Ystar[i,] = sqrt(sigmasq_g) * zstar + lambda_g
   }
@@ -68,9 +68,19 @@ applyModel = function(tY, model, bx=NULL) {
             scale = sqrt(model$siggsq))
   
   if (is.null(bx)) bx = model$bx
+  else {
+    if (!all(levels(bx) %in% levels(model$bx))) {
+      stop("apply.bad.batch.variable")
+    }
+  }
+  
+  if (nrow(Y) != length(bx)){
+    stop("apply.bad.batch.variable.length")
+  }
   
   Ystar = batchcorrect(Z,  
                        bx,
+                       levels(model$bx),
                        model$post,
                        model$alpha_g,
                        model$siggsq)
@@ -136,7 +146,6 @@ fit.NoRef = function(tY, bx, mean.only=FALSE) {
   # solving for batch effect
   post = getLSCorrection(params, Z, bx, lambda.hat, sigma.hat, mean.only)
  
-  # Ystar = batchcorrect(Z, bx, post, alpha_g, siggsq)
   list(bx=bx,post=post,alpha_g=alpha_g,siggsq=siggsq)
 }
 
