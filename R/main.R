@@ -22,9 +22,6 @@ postvar = function(sum2,n,a,b){
   (.5*sum2 + b) / (n/2 + a - 1)
 }
  
-
-
-
 it.sol = function(params, Z, lambda.hat, sigma.hat, conv = .0001)
 {
   g.old = lambda.hat
@@ -141,6 +138,9 @@ fit.NoRef = function(tY, bx, mean.only=FALSE) {
 }
 
 fit.Ref = function(tY, bx, mean.only=FALSE, ref.batch=NULL) {
+  if (!(ref.batch %in% bx)) {
+    stop("fit.ref.batch.not.found")
+  }
   bx = relevel(factor(bx), ref = ref.batch) # ref will be the first level of bx
   lvbx = levels(bx)
   nObsPerBatch = summary(bx)
