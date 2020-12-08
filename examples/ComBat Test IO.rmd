@@ -59,20 +59,25 @@ colnames(test_opt4_out) = c("rowSeq", "colSeq", "value")
 
 ## Opt 5: fit to REF, apply to DAS
 ```{r opt5}
-Yref = acast(test_in %>% filter(Grouping == "REF"), rowSeq ~ colSeq, value.var = "value")
-bxref = factor(as.vector(acast(test_in %>% filter(Grouping == "REF"), rowSeq ~ colSeq, value.var = "RunID")[1,]))
+
+fixed.ref = read.delim("METHODCC REF database_200916085501.txt",skip = 1)
+load("NewX_run5_VSNdata.RData")
+newref = aCube%>% dplyr::filter(Grouping == "REF") %>% dcast(ID ~colSeq, value.var = "value")
+data2fit = fixed.ref %>% bind_cols(newref) %>% select(-starts_with("ID"))
+
+Yref = as.matrix(data2fit)
+bx = factor(c(rep(1, ncol(fixed.ref)-1), rep(2, ncol(newref)-1) ) )
+
 cObj = pgBatch::pgCombat$new()
-cFit = cObj$fit(Yref, bxref)
+cFit = cObj$fit(Yref, bx)
 
-Ydas = acast(test_in %>% filter(Grouping == "DAS"), rowSeq ~ colSeq, value.var = "value")
-bxdas = factor(as.vector(acast(test_in %>% filter(Grouping == "DAS"), rowSeq ~ colSeq, value.var = "RunID")[1,]))
-Ystar = cFit$apply(Ydas, bxdas)
+newx = aCube %>% filter(Grouping == "REF") %>% acast(ID ~ colSeq, value.var = "value")
+newbx = factor(rep(2, ncol(newx)))
 
-test_opt5_out = melt(Ystar)
-colnames(test_opt5_out) = c("rowSeq", "colSeq", "value")
+Ystar = cFit$apply(newx, newbx)
 
 ```
 
 ```{r, eval = FALSE}
-save(file = "Combat Test Data.RData", test_opt1_out, test_opt2_out, test_opt3_out, test_opt4_out, test_opt5_out)
+save(file = "Combat Test Data.RData", test_opt1_out, test_opt2_out, test_opt3_out, test_opt4_out)
 ```
