@@ -1,25 +1,25 @@
 library(testthat)
 context("test-dascombat")
 library(dascombat)
-library(bnutil)
-
 library(reshape2)
-library(dplyr)
-
 
 test_that("dascombat::fit vs sva::ComBat", {
+  
+  load("sva.test.data.Rdata" )
+  expect_true(is.list(sva.test.data))
+  
   df = dascombat::combat_testdf
   
   Y = acast(df, rowSeq~colSeq, value.var = "value")
   bx = acast(df, rowSeq~colSeq, value.var = "RunID")[1,]
   bx = factor(bx)
     
-  sva.cMod = sva::ComBat(Y, bx, mean.only  = TRUE, ref.batch = NULL)
+  sva.cMod = sva.test.data$sva.mean.only.t
   model = dascombat::fit(Y, bx, mean.only = TRUE)
   cMod = dascombat::applyModel(Y,model)
   expect_true(all(round(cMod,8) - round(sva.cMod,8) == 0))
   
-  sva.cMod = sva::ComBat(Y, bx, mean.only  = FALSE, ref.batch = NULL)
+  sva.cMod = sva.test.data$sva.mean.only.f
   model = dascombat::fit(Y, bx, mean.only = FALSE)
   cMod = dascombat::applyModel(Y,model)
   expect_true(all(round(cMod,8) - round(sva.cMod,8) == 0))
@@ -28,12 +28,12 @@ test_that("dascombat::fit vs sva::ComBat", {
   
   ref.batch = "1"
   
-  sva.cMod = sva::ComBat(Y, bx, mean.only  = TRUE, ref.batch = ref.batch)
+  sva.cMod = sva.cMod = sva.test.data$sva.mean.only.t.ref
   model = dascombat::fit(Y, bx, mean.only = TRUE, ref.batch = ref.batch)
   cMod = dascombat::applyModel(Y,model)
   expect_true(all(round(cMod,8) - round(sva.cMod,8) == 0))
   
-  sva.cMod = sva::ComBat(Y, bx, mean.only  = FALSE, ref.batch = ref.batch)
+  sva.cMod = sva.cMod = sva.test.data$sva.mean.only.f.ref
   model = dascombat::fit(Y, bx, mean.only = FALSE, ref.batch = ref.batch)
   cMod = dascombat::applyModel(Y,model)
   expect_true(all(round(cMod,8) - round(sva.cMod,8) == 0))
