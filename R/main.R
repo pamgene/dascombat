@@ -100,11 +100,8 @@ fit = function(Y, bx, mean.only=FALSE, ref.batch=NULL) {
 }
 
 getLSCorrection = function(pardf, Z, bx, lambda.hat, sigma.hat, mean.only = FALSE){
-  bx2 = pardf$bx
-  
   if(!mean.only){
     post = pardf %>% group_by(bx) %>% do(it.sol(., Z = Z[bx == .$bx,], lambda.hat[.$bi,], sigma.hat[.$bi,]))
-    # post = pardf %>% group_by(bx) %>% do(it.sol(., Z = Z[group_rows(.),], lambda.hat[.$bi,], sigma.hat[.$bi,]))
   } else {
     post = pardf %>% group_by(bx) %>% do({
       lambda.str= postmean(lambda.hat[.$bi,], .$lambda.bar, 1,1, .$t2)
