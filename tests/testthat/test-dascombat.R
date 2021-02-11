@@ -16,12 +16,12 @@ test_that("dascombat::fit vs sva::ComBat", {
     
   sva.cMod = sva.test.data$sva.mean.only.t
   model = dascombat::fit(Y, bx, mean.only = TRUE)
-  cMod = dascombat::applyModel(Y,model)
+  cMod = dascombat::applyModel(Y,model,model$bx)
   expect_true(all(round(cMod,8) - round(sva.cMod,8) == 0))
   
   sva.cMod = sva.test.data$sva.mean.only.f
   model = dascombat::fit(Y, bx, mean.only = FALSE)
-  cMod = dascombat::applyModel(Y,model)
+  cMod = dascombat::applyModel(Y,model,model$bx)
   expect_true(all(round(cMod,8) - round(sva.cMod,8) == 0))
   
   #########################
@@ -30,12 +30,12 @@ test_that("dascombat::fit vs sva::ComBat", {
   
   sva.cMod = sva.cMod = sva.test.data$sva.mean.only.t.ref
   model = dascombat::fit(Y, bx, mean.only = TRUE, ref.batch = ref.batch)
-  cMod = dascombat::applyModel(Y,model)
+  cMod = dascombat::applyModel(Y,model,model$bx)
   expect_true(all(round(cMod,8) - round(sva.cMod,8) == 0))
   
   sva.cMod = sva.cMod = sva.test.data$sva.mean.only.f.ref
   model = dascombat::fit(Y, bx, mean.only = FALSE, ref.batch = ref.batch)
-  cMod = dascombat::applyModel(Y,model)
+  cMod = dascombat::applyModel(Y,model,model$bx)
   expect_true(all(round(cMod,8) - round(sva.cMod,8) == 0))
 })
 
@@ -54,6 +54,21 @@ test_that("fit.ref.batch.not.found", {
                message="fit.ref.batch.not.found")
   
 })
+
+test_that("apply null", {
+  df = dascombat::combat_testdf
+  
+  Y = acast(df, rowSeq~colSeq, value.var = "value")
+  bx = acast(df, rowSeq~colSeq, value.var = "RunID")[1,]
+  bx = factor(bx)
+  
+  model = dascombat::fit(Y, bx, mean.only = TRUE)
+    
+  expect_error(dascombat::applyModel(Y,model,bx=NULL),
+               message="apply.bad.batch.variable")
+   
+})
+
 
 test_that("apply with new batch variable", {
   df = dascombat::combat_testdf
