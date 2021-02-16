@@ -30,9 +30,7 @@ it.sol = function(params, Z, lambda.hat, sigma.hat, conv = .0001)
   count <- 0
   while(change>conv){
     g.new <- postmean(lambda.hat, params$lambda.bar, params$n, d.old, params$t2)
-     
     sum2 = colSums(scale(Z, center = g.new, scale = FALSE)^2)
-    #sum2 <- rowSums((sdat - g.new %*% t(rep(1,ncol(sdat))))^2, na.rm=TRUE)
     d.new <- postvar(sum2, params$n, params$gamma, params$theta)
     change <- max(abs(g.new-g.old) / g.old, abs(d.new-d.old) / d.old)
     g.old <- g.new
@@ -59,7 +57,7 @@ batchcorrect = function(Z, bx, model.levels,  post, lambda_g, sigmasq_g){
 #' @import dplyr data.table
 #' 
 #' @export
-applyModel = function(tY, model, bx=NULL) {
+applyModel = function(tY, model, bx) {
   
   Y = t(tY)
   
@@ -67,7 +65,9 @@ applyModel = function(tY, model, bx=NULL) {
             center = model$alpha_g, 
             scale = sqrt(model$siggsq))
   
-  if (is.null(bx)) bx = model$bx
+  if (is.null(bx)) {
+    stop("apply.bad.batch.variable")
+  }
   else {
     if (!all(levels(bx) %in% levels(model$bx))) {
       stop("apply.bad.batch.variable")
@@ -100,11 +100,8 @@ fit = function(Y, bx, mean.only=FALSE, ref.batch=NULL) {
 }
 
 getLSCorrection = function(pardf, Z, bx, lambda.hat, sigma.hat, mean.only = FALSE){
-  bx2 = pardf$bx
-  
   if(!mean.only){
     post = pardf %>% group_by(bx) %>% do(it.sol(., Z = Z[bx == .$bx,], lambda.hat[.$bi,], sigma.hat[.$bi,]))
-    # post = pardf %>% group_by(bx) %>% do(it.sol(., Z = Z[group_rows(.),], lambda.hat[.$bi,], sigma.hat[.$bi,]))
   } else {
     post = pardf %>% group_by(bx) %>% do({
       lambda.str= postmean(lambda.hat[.$bi,], .$lambda.bar, 1,1, .$t2)
