@@ -89,12 +89,12 @@ test_that("dascombat::fit vs sva::ComBat", {
   
   ref.batch = "1"
   
-  sva.cMod = sva.cMod = sva.test.data$sva.mean.only.t.ref
+  sva.cMod = sva.test.data$sva.mean.only.t.ref
   model = dascombat::fit(Y, bx, mean.only = TRUE, ref.batch = ref.batch)
   cMod = dascombat::applyModel(Y,model,model$bx)
   expect_true(all(round(cMod,8) - round(sva.cMod,8) == 0))
   
-  sva.cMod = sva.cMod = sva.test.data$sva.mean.only.f.ref
+  sva.cMod = sva.test.data$sva.mean.only.f.ref
   model = dascombat::fit(Y, bx, mean.only = FALSE, ref.batch = ref.batch)
   cMod = dascombat::applyModel(Y,model,model$bx)
   expect_true(all(round(cMod,8) - round(sva.cMod,8) == 0))
@@ -147,9 +147,6 @@ test_that("apply with new batch variable", {
   bx = factor(bx)
   
   expect_error(dascombat::applyModel(Y,model,bx=bx), "apply.bad.batch.variable")
-  
-  
-   
 })
 
 
