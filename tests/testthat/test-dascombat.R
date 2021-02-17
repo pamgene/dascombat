@@ -111,8 +111,7 @@ test_that("fit.ref.batch.not.found", {
   
   expect_false(ref.batch.error %in% bx)
   
-  expect_error(dascombat::fit(Y, bx, mean.only = TRUE, ref.batch = ref.batch.error),
-               message="fit.ref.batch.not.found")
+  expect_error(dascombat::fit(Y, bx, mean.only = TRUE, ref.batch = ref.batch.error),"fit.ref.batch.not.found")
   
 })
 
@@ -125,8 +124,7 @@ test_that("apply null", {
   
   model = dascombat::fit(Y, bx, mean.only = TRUE)
     
-  expect_error(dascombat::applyModel(Y,model,bx=NULL),
-               message="apply.bad.batch.variable")
+  expect_error(dascombat::applyModel(Y,model,bx=NULL), "apply.bad.batch.variable")
    
 })
 
@@ -148,8 +146,7 @@ test_that("apply with new batch variable", {
   bx[1] = "something missing"
   bx = factor(bx)
   
-  expect_error(dascombat::applyModel(Y,model,bx=bx),
-               message="apply.bad.batch.variable")
+  expect_error(dascombat::applyModel(Y,model,bx=bx), "apply.bad.batch.variable")
   
   
    
