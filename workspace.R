@@ -102,8 +102,8 @@ df %>% group_by(RunID) %>% summarise(groupRowIndex=list(group_rows(.)))
 
 df %>% group_by(RunID) %>% group_data() %>% summarise(groupRowIndex=max(.$.rows))
 
-df <- tibble(x = c(1,1,2,2,1))
-
+df <- as.matrix(data.frame(x = c(1,1,2,2,1), y = c(1,1,2,2,NaN)))
+anyNA(df)
 gf <- group_by(df, x)
 group_vars(gf)
  
@@ -112,5 +112,6 @@ group_rows(gf)
 ccc = c(1,1,1,1,2,2,5)
 ccc[as.integer(list(1,2))]
 ccc[as.integer(list(1,2))]
+
 
 

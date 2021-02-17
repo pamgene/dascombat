@@ -59,20 +59,26 @@ batchcorrect = function(Z, bx, model.levels,  post, lambda_g, sigmasq_g){
 #' @export
 applyModel = function(tY, model, bx) {
   
-  Y = t(tY)
-  
-  Z = scale(Y, 
-            center = model$alpha_g, 
-            scale = sqrt(model$siggsq))
+  if (!inherits(tY, 'matrix')) stop('A matrix is required')
+  if (anyNA(tY)) stop('Missing values are not allowed')
   
   if (is.null(bx)) {
     stop("apply.bad.batch.variable")
   }
-  else {
-    if (!all(levels(bx) %in% levels(model$bx))) {
-      stop("apply.bad.batch.variable")
-    }
+  
+  if (length(bx) != ncol(tY)) stop('Bad length')
+  
+  if (!all(levels(bx) %in% levels(model$bx))) {
+    stop("apply.bad.batch.variable")
   }
+  
+  Y = t(tY)
+   
+  Z = scale(Y, 
+            center = model$alpha_g, 
+            scale = sqrt(model$siggsq))
+  
+
   
   if (nrow(Y) != length(bx)){
     stop("apply.bad.batch.variable.length")
@@ -92,6 +98,10 @@ applyModel = function(tY, model, bx) {
 #' 
 #' @export
 fit = function(Y, bx, mean.only=FALSE, ref.batch=NULL) {
+  if (!inherits(Y, 'matrix')) stop('A matrix is required')
+  if (anyNA(Y)) stop('Missing values are not allowed')
+  if (length(bx) != ncol(Y)) stop('Bad length')
+  
   if (is.null(ref.batch)){
     return(fit.NoRef(Y, bx, mean.only=mean.only))
   } else {
