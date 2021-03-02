@@ -54,8 +54,15 @@ batchcorrect = function(Z, bx, model.levels,  post, lambda_g, sigmasq_g){
 
 
 
+#' applyModel function
+#'
+#' @param Y intput
+#' @param model intput
+#' @param bx intput
+#'
+#' @return data.frame
+#'
 #' @import dplyr data.table
-#' 
 #' @export
 applyModel = function(tY, model, bx) {
   
@@ -94,8 +101,16 @@ applyModel = function(tY, model, bx) {
   t(Ystar)
 }
 
+#' fit function
+#'
+#' @param Y intput
+#' @param bx intput
+#' @param mean.only intput
+#' @param ref.batch intput
+#'
+#' @return model
+#'
 #' @import dplyr data.table
-#' 
 #' @export
 fit = function(Y, bx, mean.only=FALSE, ref.batch=NULL) {
   if (!inherits(Y, 'matrix')) stop('A matrix is required')
