@@ -49,7 +49,7 @@ test_that("apply input validation", {
   
 })
 
-test_that("test applyModel output size", {
+test_that("test applyModel output size, rownames and colnames", {
   
   df = dascombat::combat_testdf
   
@@ -62,6 +62,9 @@ test_that("test applyModel output size", {
   
   expect_true(nrow(cMod) == nrow(Y))
   expect_true(ncol(cMod) == ncol(Y))
+  
+  expect_equal(colnames(cMod) , colnames(Y))
+  expect_equal(rownames(cMod) , rownames(Y))
 })
 
 test_that("dascombat::fit vs sva::ComBat", {

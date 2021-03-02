@@ -98,7 +98,12 @@ applyModel = function(tY, model, bx) {
                        model$alpha_g,
                        model$siggsq)
   
-  t(Ystar)
+  result = t(Ystar)
+  
+  colnames(result) = colnames(tY)
+  rownames(result) = rownames(tY)
+  
+  result
 }
 
 #' fit function
