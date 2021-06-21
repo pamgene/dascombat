@@ -1,5 +1,5 @@
-library(dplyr)
 library(data.table)
+library(dplyr)
  
 # Helper functions
 aprior = function(X) {
@@ -207,8 +207,7 @@ fit.Ref = function(tY, bx, mean.only=FALSE, ref.batch=NULL) {
                        t2 = apply(lambda.hat,1, var),
                        gamma = apply(sigma.hat, 1, aprior),
                        theta = apply(sigma.hat, 1, bprior),
-                       n = summary(bx)) %>%
-    mutate(bx = relevel(bx, ref = lvbx[1])) # necessary to make sure ref batch is level 1.
+                       n = summary(bx))
   
   #solving for barch effecy
   post = getLSCorrection(params, Z, bx, lambda.hat, sigma.hat, mean.only)
