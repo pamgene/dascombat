@@ -213,8 +213,9 @@ fit.Ref = function(tY, bx, mean.only=FALSE, ref.batch=NULL) {
   post = getLSCorrection(params, Z, bx, lambda.hat, sigma.hat, mean.only)
    
   # make sure that location and scale for the ref batch is identical 0 and 1, respectively
-  post$lambda.star[[1]] = matrix(nrow = 1, ncol = dim(Y)[2], data = 0)
-  post$sigma.star[[1]]  = matrix(nrow = 1, ncol = dim(Y)[2], data = 1)
+  ref.idx = match(ref.batch, post$bx)
+  post$lambda.star[[ref.idx]] = matrix(nrow = 1, ncol = dim(Y)[2], data = 0)
+  post$sigma.star[[ref.idx]]  = matrix(nrow = 1, ncol = dim(Y)[2], data = 1)
   
   list(bx=bx,post=post,alpha_g=alpha_g,siggsq=siggsq)
 }
