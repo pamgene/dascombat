@@ -44,6 +44,7 @@ test_that("apply input validation", {
   Y = acast(df, rowSeq~colSeq, value.var = "value")
   # remove first
   bx = acast(df, rowSeq~colSeq, value.var = "RunID")[1,-1]
+  bx = factor(bx)
   expect_error(dascombat::fit(Y, bx, mean.only = TRUE),"Bad length")
   
   
@@ -152,4 +153,23 @@ test_that("apply with new batch variable", {
   expect_error(dascombat::applyModel(Y,model,bx=bx), "apply.bad.batch.variable")
 })
 
+test_that("fit rejects non-factor bx with clear error", {
+  df = dascombat::combat_testdf
+  
+  Y = acast(df, rowSeq~colSeq, value.var = "value")
+  bx = acast(df, rowSeq~colSeq, value.var = "RunID")[1,]
+  bx = as.character(bx)
+  
+  expect_error(dascombat::fit(Y, bx, mean.only = TRUE), "fit.bad.batch.variable")
+})
+
+test_that("applyModel rejects non-factor bx with clear error", {
+  df = dascombat::combat_testdf
+  
+  Y = acast(df, rowSeq~colSeq, value.var = "value")
+  bx = factor(acast(df, rowSeq~colSeq, value.var = "RunID")[1,])
+  model = dascombat::fit(Y, bx, mean.only = TRUE)
+  
+  expect_error(dascombat::applyModel(Y, model, as.character(bx)), "apply.bad.batch.variable")
+})
 

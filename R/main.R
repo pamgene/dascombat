@@ -73,6 +73,8 @@ applyModel = function(tY, model, bx) {
     stop("apply.bad.batch.variable")
   }
   
+  if (!is.factor(bx)) stop("apply.bad.batch.variable")
+  
   if (length(bx) != ncol(tY)) stop('Bad length')
   
   if (!all(levels(bx) %in% levels(model$bx))) {
@@ -120,6 +122,7 @@ applyModel = function(tY, model, bx) {
 fit = function(Y, bx, mean.only=FALSE, ref.batch=NULL) {
   if (!inherits(Y, 'matrix')) stop('A matrix is required')
   if (anyNA(Y)) stop('Missing values are not allowed')
+  if (!is.factor(bx)) stop("fit.bad.batch.variable")
   if (length(bx) != ncol(Y)) stop('Bad length')
   
   if (is.null(ref.batch)){
