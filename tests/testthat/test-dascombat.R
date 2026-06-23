@@ -152,4 +152,13 @@ test_that("apply with new batch variable", {
   expect_error(dascombat::applyModel(Y,model,bx=bx), "apply.bad.batch.variable")
 })
 
+test_that("ref.batch identity applied to named batch not first post row", {
+  df = dascombat::combat_testdf
+  Y = acast(df, rowSeq~colSeq, value.var = "value")
+  bx = factor(rep(c("DB", "NEW"), length.out = ncol(Y)), levels = c("DB", "NEW"))
+  model = dascombat::fit(Y, bx, mean.only = TRUE, ref.batch = "NEW")
+  idx = match("NEW", model$post$bx)
+  expect_true(all(unlist(model$post$lambda.star[[idx]]) == 0))
+  expect_true(all(unlist(model$post$sigma.star[[idx]]) == 1))
+})
 
